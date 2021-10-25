@@ -8,43 +8,21 @@ exports.getAddProduct = (req, res, next) => {
     });
 };
 
-/*exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(null, title, imageUrl, description, price);
-  product.save();
-  res.redirect('/');
-};*/
-exports.postAddProduct = (req, res, next) => {
-    const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
-    const price = req.body.price;
-    const description = req.body.description;
-    req.user.createProduct({
-        title: title,
-        price: price,
-        imageUrl: imageUrl,
-        description: description
-    }).then(result => {
-        console.log("ADD PRODUCT.");
-        return res.redirect('/admin/products');
-    }).catch(err => {
-        console.log(err);
-    });
-    /*Product.create({
-        title: title,
-        price: price,
-        imageUrl: imageUrl,
-        description: description
-    }).then(result => {
-        console.log("ADD PRODUCT.");
-        return res.redirect('/admin/products');
-    }).catch(err => {
-        console.log(err);
-    });*/
-}
+  const product = new Product({title,  price, imageUrl, description});
+  product.save()
+  .then(result => {
+      console.log('Create Product');
+      res.redirect('/admin/products');
+  })
+  .catch(err => {
+      console.log(err);
+  });
+};
 
 exports.getEditProduct = (req, res, next) => {
     const editMode = req.query.edit;
@@ -87,8 +65,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    req.user
-        .getProducts()
+    Product.fetchAll()
         .then(products => {
             res.render('admin/products', {
                 prods: products,

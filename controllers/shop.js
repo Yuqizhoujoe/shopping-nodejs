@@ -1,8 +1,7 @@
 const Product = require('../models/product');
-const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
-    req.user.getProducts()
+    Product.fetchAll()
         .then(products => {
             res.render('shop/product-list', {
                 prods: products,
@@ -26,15 +25,16 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-    req.user.getProducts().then(products => {
-        res.render('shop/index', {
-            prods: products,
-            pageTitle: 'Shop',
-            path: '/'
+    Product.fetchAll()
+        .then(products => {
+            res.render('shop/index', {
+                prods: products,
+                pageTitle: 'Shop',
+                path: '/'
+            });
+        }).catch(err => {
+            console.log(err);
         });
-    }).catch(err => {
-        console.log(err);
-    });
 };
 
 exports.getCart = (req, res, next) => {
@@ -85,7 +85,7 @@ exports.postCart = (req, res, next) => {
     req.user.getCart()
         .then(cart => {
             fetchCart = cart;
-            return cart.getProducts({where: {id: prodId}});
+            return cart.getProducts({ where: { id: prodId } });
         })
         .then(products => {
             let product;
@@ -101,7 +101,7 @@ exports.postCart = (req, res, next) => {
             return Product.findByPk(prodId)
         })
         .then(product => {
-            return fetchCart.addProduct(product, {through: {quantity: newQuantity}});
+            return fetchCart.addProduct(product, { through: { quantity: newQuantity } });
         })
         .then(result => {
             res.redirect('/cart');
@@ -118,7 +118,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
     req.user
         .getCart()
         .then(cart => {
-            return cart.getProducts({where: {id: prodId}})
+            return cart.getProducts({ where: { id: prodId } })
         })
         .then(products => {
             const product = products[0];
@@ -142,7 +142,7 @@ exports.postOrder = (req, res, next) => {
                 .then(order => {
                     order.addProducts(
                         products.map(product => {
-                            product.orderItem = {quantity: product.cartItem};
+                            product.orderItem = { quantity: product.cartItem };
                             return product;
                         })
                     );
@@ -160,7 +160,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
     req.user
-        .getOrders({include: ['products']})
+        .getOrders({ include: ['products'] })
         // .getOrders()
         .then(orders => {
             console.log(orders);
