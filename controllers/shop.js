@@ -14,7 +14,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
     const prodId = req.params.productId;
-    Product.findByPk(prodId)
+    Product.findById(prodId)
         .then(product => {
             res.render('shop/product-detail', {
                 product: product,
@@ -57,7 +57,7 @@ exports.getCart = (req, res, next) => {
             });
           })
           .catch(err => console.log(err));
-    });*/
+    }); */
     req.user.getCart()
         .then(cart => {
             return cart.getProducts()
