@@ -142,7 +142,7 @@ exports.postOrder = (req, res, next) => {
                 .then(order => {
                     order.addProducts(
                         products.map(product => {
-                            product.orderItem = {quantity: product.cartItem};
+                            product.orderItem = { quantity: product.cartItem.quantity };
                             return product;
                         })
                     );
