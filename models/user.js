@@ -47,10 +47,13 @@ class User {
         const db = getDb();
         return db
             .collection('users')
-            .updateOne(
-                { _id: new ObjectId(this._id) },
-                { $set: { cart: updatedCart } }
-            );
+            .updateOne({
+                _id: new ObjectId(this._id)
+            }, {
+                $set: {
+                    cart: updatedCart
+                }
+            });
     }
 
     getCart() {
@@ -58,12 +61,14 @@ class User {
         const productIds = this.cart.items.map(i => {
             return i.productId;
         });
-        console.log(productIds);
         return db.collection('products')
-            .find({ _id: {$in: productIds} })
+            .find({
+                _id: {
+                    $in: productIds
+                }
+            })
             .toArray()
             .then(products => {
-                console.log(products);
                 return products.map(p => {
                     return {
                         ...p,
@@ -83,6 +88,39 @@ class User {
                 _id: new mongodb.ObjectId(userId)
             })
             .next();
+    }
+
+    deleteItemFromCart(prodId) {
+        const updatedCartItems = this.cart.items.filter(item => {
+            return item.productId.toString() !== prodId.toString();
+        });
+
+        const db = getDb();
+        return db
+            .collection('users')
+            .updateOne({
+                _id: new ObjectId(this._id)
+            }, {
+                $set: {
+                    cart: {
+                        items: updatedCartItems
+                    }
+                }
+            });
+    }
+
+    addOrder() {
+        const db = getDb();
+        return db.collection('orders')
+            .insertOne(this.cart)
+            .then(result => {
+                this.cart = { items: [] };
+                return db.collection('cart')
+                    .updateOne(
+                        { _id: new ObjectId(this._id) },
+                        { $set: { cart: { items: [] } } }
+                    );
+            });
     }
 }
 
