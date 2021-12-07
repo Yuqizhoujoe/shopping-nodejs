@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
@@ -109,4 +111,8 @@ exports.getReset = (req, res, next) => {
     pageTitle: 'Reset Password',
     errorMessage: message
   });
+}
+
+exports.postRest = (req, res, next) => {
+  
 }
