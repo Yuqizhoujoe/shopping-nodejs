@@ -46,7 +46,9 @@ exports.postLogin = (req, res, next) => {
       errorMessage: errors.array()[0].msg
     });
   }
-  User.findOne({ email: email })
+  User.findOne({
+      email: email
+    })
     .then(user => {
       if (!user) {
         req.flash('error', 'Invalid email.');
@@ -69,6 +71,9 @@ exports.postLogin = (req, res, next) => {
         .catch(err => {
           console.log(err);
           res.redirect('/login');
+        })
+    })
+    .catch(err => console.log(err));
 };
 
 exports.postSignup = (req, res, next) => {

@@ -18,12 +18,14 @@ router.post(
     [
         check('email')
         .isEmail()
-        .withMessage('Invalid Email...'),
+        .withMessage('Invalid Email...')
+        .normalizeEmail(),
         body(
             'password',
             'Invalid Password'
         )
         .isAlphanumeric()
+        .trim()
     ],
     authController.postLogin
 );
@@ -34,6 +36,7 @@ router.post(
         check('email')
         .isEmail()
         .withMessage('Please enter valid email')
+        .normalizeEmail()
         .custom((value, {
             req
         }) => {
@@ -56,8 +59,10 @@ router.post(
         .isLength({
             min: 5
         })
-        .isAlphanumeric(),
+        .isAlphanumeric()
+        .trim(),
         body('confirmPassword')
+        .trim()
         .custom((value, {
             req
         }) => {
