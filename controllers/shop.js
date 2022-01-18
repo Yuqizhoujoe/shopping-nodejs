@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const stripe = require('stripe')('sk_test_51KJ97FBCTubdhATJ7JNJrVhZTuQf2x70y1ZATAZrPlBh3ho2xkBGkOJ5a4Jul5EENxtdJ3kJVPRA4N8scJaH7XAb00pBwgwd8n');
 
 const PDFDocument = require('pdfkit');
 
@@ -144,21 +145,43 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
-    console.log('get Checkout');
+    let products;
+    let total = 0;
     req.user
         .populate('cart.items.productId')
         .execPopulate()
         .then(user => {
-            const products = user.cart.items;
-            let total = 0;
+            products = user.cart.items;
             products.forEach(p => {
                 total += p.quantity * p.productId.price;
             });
-            res.render('shop/checkout', {
-                path: '/checkout',
-                pageTitle: 'Your Checkout',
-                products: products,
-                totalSum: total
+            const line_items = products.map(p => {
+                return {
+                    name: p.productId.title,
+                    description: p.productId.description,
+                    amount: p.productId.price,
+                    currency: 'usd',
+                    quantity: p.quantity
+                };
+            });
+            return stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: line_items,
+                // urls that redirect user to once the transaction completed
+                // req.protocol -> https || http
+                success_url: req.protocol + '://' + req.get('host') + '/checkout/success', // https://localhost:2000/checkout/success
+                cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel', // https://localhost:2000/checkout/cancel
+            }).then(session => {
+                console.log(total);
+                res.render('shop/checkout', {
+                    path: '/checkout',
+                    pageTitle: 'Your Checkout',
+                    products: products,
+                    totalSum: total,
+                    sessionId: session.id
+                });
+            }).catch(err => {
+                console.log(err);
             });
         })
         .catch(err => {
