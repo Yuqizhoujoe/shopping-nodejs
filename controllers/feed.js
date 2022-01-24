@@ -15,20 +15,6 @@ exports.getPosts = (req, res, next) => {
       }
       next(err);
     });
-  /*res.status(200).json({
-    posts: [
-      {
-        _id: 1,
-        title: "First Post",
-        content: "This is the first post!",
-        imageUrl: "images/duck.jpg",
-        creator: {
-          name: "Joe",
-        },
-        createdAt: new Date(),
-      },
-    ],
-  });*/
 };
 
 exports.createPost = (req, res, next) => {
@@ -42,13 +28,19 @@ exports.createPost = (req, res, next) => {
                               errors: errors.array(),
                             });*/
   }
+  if (!req.file) {
+    const error = new Error('No image provided.');
+    error.statusCode = 422;
+    throw error;
+  }
+  const imageUrl = req.file.path;
   const title = req.body.title;
   const content = req.body.content;
   // Create post in db
   const post = new Post({
     title: title,
     content: content,
-    imageUrl: "images/duck.jpg",
+    imageUrl: imageUrl,
     creator: { name: "Joe" },
   });
   post
