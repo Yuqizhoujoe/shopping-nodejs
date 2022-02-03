@@ -5,6 +5,7 @@ const path = require("path");
 const multer = require("multer");
 
 const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/user");
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 // Global Error Handling - Express.js
 app.use((error, req, res, next) => {
