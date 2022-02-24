@@ -48,9 +48,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/feed", feedRoutes);
-app.use("/auth", authRoutes);
-
 // Global Error Handling - Express.js
 app.use((error, req, res, next) => {
   console.log(error);
@@ -65,10 +62,6 @@ const MONGODB_URI =
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
-    const server = app.listen(8080);
-    const io = require("./socket").init(server);
-    io.on("connection", (socket) => {
-      console.log("Client connected");
-    });
+    app.listen(8080);
   })
   .catch((err) => console.log(err));
